@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap-clearmin.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/roboto.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/material-design.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/small-n-flat.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <title>Clearmin template</title>
+</head>
+<body class="cm-no-transition cm-1-navbar">
+<div id="cm-menu">
+    <nav class="cm-navbar cm-navbar-primary">
+        <div class="cm-flex">
+            <div class="cm-logo"></div>
+        </div>
+        <div class="btn btn-primary md-menu-white" data-toggle="cm-menu"></div>
+    </nav>
+    <div id="cm-menu-content">
+        <div id="cm-menu-items-wrapper">
+            <div id="cm-menu-scroller">
+                <ul class="cm-menu-items">
+                    <li class="active"><a href="/firmStatistics" class="sf-house">企业信息统计</a></li>
+                    <li><a href="/userInfoStatistics" class="sf-dashboard">用户信息统计</a></li>
+                    <li><a href="/resumeStatistics" class="sf-notepad">简历信息统计</a></li>
+                    <li><a href="/sendStatistics" class="sf-cat">简历投递统计</a></li>
+                    <li><a href="/positionStatistics" class="sf-lock-open">职位信息统计</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<header id="cm-header">
+    <nav class="cm-navbar cm-navbar-primary">
+        <div class="btn btn-primary md-menu-white hidden-md hidden-lg" data-toggle="cm-menu"></div>
+        <div class="cm-flex">
+            <h1>兵果果业务系统</h1>
+            <form id="cm-search" action="http://www.baidu.com/baidu" method="get" target="_blank">
+                <input name=tn type=hidden value=baidu>
+                <input type="search" name="word" autocomplete="off" placeholder="搜索">
+            </form>
+        </div>
+        <div class="pull-right">
+            <div id="cm-search-btn" class="btn btn-primary md-search-white" data-toggle="cm-search"></div>
+        </div>
+        <div class="dropdown pull-right">
+            <button class="btn btn-primary md-account-circle-white" data-toggle="dropdown"></button>
+            <ul class="dropdown-menu">
+                <li class="disabled text-center">
+                    <a style="cursor:default;" id="a-realname"><strong>yangkunlin</strong></a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="#" id="/user/changepassword"><i class="fa fa-fw fa-cog"></i>修改密码</a>
+                </li>
+                <li>
+                    <a href="/user/logout" id="logout"><i class="fa fa-fw fa-sign-out"></i>退出登陆</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<div id="global">
+    <div style="height: 400px">
+        <div id="container1" style="height:400px; width:50%; float:left; display:inline; border:black 1px solid;"></div>
+        <div id="container2" style="height:400px; width:50%; float:left; display:inline; border:black 1px solid;"></div>
+    </div>
+    <div style="height: 400px">
+        <div class="tabbable" id="tabs-180846">
+            <ul class="nav nav-tabs" style="float:right" title="入驻企业数统计">
+                <li class="active">
+                    <a data-toggle="tab" name="day" onclick="stateStatisticsDay()">日统计</a>
+                </li>
+                <li>
+                    <a data-toggle="tab" name="month" onclick="stateStatisticsMonth()">月统计</a>
+                </li>
+                <li>
+                    <a data-toggle="tab" name="year" onclick="stateStatisticsYear()">年统计</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="container_day">
+                    <div id="container3" style="height:400px; width:100%; float:left; display:inline;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+            var dom1 = document.getElementById("container1");
+            var myChart1 = echarts.init(dom1);
+            var app = {};
+            var dataObj = {};
+            var xArrayObj = [];
+            var yArrayObj = [];
+            option = null;
+
+            $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/firm/category/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayObj.push(key);
+                        var obj = new Object();
+                        obj.name = key;
+                        obj.value = dataObj[key];
+                        yArrayObj.push(obj);
+                     }
+                     option = {
+                        backgroundColor: '#ffffff',
+                        title : {
+                            text: '入驻企业行业分类',
+                            subtext: '数据来自兵果果招聘',
+                            x:'center'
+                        },
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'right',
+                            data: xArrayObj
+                        },
+                        series : [
+                            {
+                                name: '行业分类',
+                                type: 'pie',
+                                radius : '55%',
+                                center: ['30%', '50%'],
+                                data: yArrayObj,
+                                itemStyle: {
+                                    emphasis: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    if (option && typeof option === "object") {
+                        myChart1.setOption(option, true);
+                    }
+                  }
+             });
+
+
+
+    </script>
+    <script type="text/javascript">
+
+            var dom2 = document.getElementById("container2");
+            var myChart2 = echarts.init(dom2);
+            var app2 = {};
+            var dataObj2 = {};
+            var xArrayObj2 = [];
+            var yArrayObj2 = [];
+            option2 = null;
+            $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/firm/scale/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj2=eval("("+data+")");
+                     for (var key in dataObj2) {
+                        xArrayObj2.push(key);
+                        var obj = new Object();
+                        obj.name = key;
+                        obj.value = dataObj2[key];
+                        yArrayObj2.push(obj);
+                     }
+                     option2 = {
+                        backgroundColor: '#2c343c',
+
+                        title: {
+                            text: '入驻企业规模分类',
+                            subtext: '数据来自兵果果招聘',
+                            left: 'center',
+                            top: 20,
+                            textStyle: {
+                                color: '#ffffff'
+                            }
+                        },
+
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+
+                        visualMap: {
+                            show: false,
+                            min: 80,
+                            max: 600,
+                            inRange: {
+                                colorLightness: [0, 1]
+                            }
+                        },
+                        series : [
+                            {
+                                name:'规模分类',
+                                type:'pie',
+                                radius : '55%',
+                                center: ['50%', '50%'],
+                                data:yArrayObj2.sort(function (a, b) { return a.value - b.value; }),
+                                roseType: 'radius',
+                                label: {
+                                    normal: {
+                                        textStyle: {
+                                            color: 'rgba(255, 255, 255, 0.3)'
+                                        }
+                                    }
+                                },
+                                labelLine: {
+                                    normal: {
+                                        lineStyle: {
+                                            color: 'rgba(255, 255, 255, 0.3)'
+                                        },
+                                        smooth: 0.2,
+                                        length: 10,
+                                        length2: 20
+                                    }
+                                },
+                                itemStyle: {
+                                    normal: {
+                                        color: '#DEDEDE',
+                                        shadowBlur: 200,
+                                        shadowColor: 'rgba(255, 255, 255, 0.5)'
+                                    }
+                                },
+
+                                animationType: 'scale',
+                                animationEasing: 'elasticOut',
+                                animationDelay: function (idx) {
+                                    return Math.random() * 200;
+                                }
+                            }
+                        ]
+                    };;
+                    if (option2 && typeof option2 === "object") {
+                        myChart2.setOption(option2, true);
+                    }
+                  }
+            })
+
+
+       </script>
+    <script type="text/javascript">
+    stateStatisticsDay()
+    function stateStatisticsDay() {
+        var dom = document.getElementById("container3");
+        var myChart3 = echarts.init(dom);
+        var app = {};
+        var dataObj = {};
+        var xArrayStateObj = [];
+        var yArrayStateObj1 = [];
+        var yArrayStateObj2 = [];
+        var yArrayStateObj3 = [];
+        var yArrayStateObj4 = [];
+        option = null;
+
+        $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/firm/state/statistics",
+                  data:  JSON.stringify({"category" : "day"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayStateObj.push(key);
+                        yArrayStateObj1.push(dataObj[key][0]);
+                        yArrayStateObj2.push(dataObj[key][1]);
+                        yArrayStateObj3.push(dataObj[key][2]);
+                        yArrayStateObj4.push(dataObj[key][3]);
+                     }
+                     var posList = [
+                        'left', 'right', 'top', 'bottom',
+                        'inside',
+                        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                    ];
+
+                    app.configParameters = {
+                        rotate: {
+                            min: -90,
+                            max: 90
+                        },
+                        align: {
+                            options: {
+                                left: 'left',
+                                center: 'center',
+                                right: 'right'
+                            }
+                        },
+                        verticalAlign: {
+                            options: {
+                                top: 'top',
+                                middle: 'middle',
+                                bottom: 'bottom'
+                            }
+                        },
+                        position: {
+                            options: echarts.util.reduce(posList, function (map, pos) {
+                                map[pos] = pos;
+                                return map;
+                            }, {})
+                        },
+                        distance: {
+                            min: 0,
+                            max: 100
+                        }
+                    };
+
+                    app.config = {
+                        rotate: 90,
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        position: 'insideBottom',
+                        distance: 15,
+                        onChange: function () {
+                            var labelOption = {
+                                normal: {
+                                    rotate: app.config.rotate,
+                                    align: app.config.align,
+                                    verticalAlign: app.config.verticalAlign,
+                                    position: app.config.position,
+                                    distance: app.config.distance
+                                }
+                            };
+                            myChart.setOption({
+                                series: [{
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }]
+                            });
+                        }
+                    };
+
+
+                    var labelOption = {
+                        normal: {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        }
+                    };
+
+                    option = {
+                        color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['注册数', '已认证', '未认证', '认证失败']
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {show: false},
+                                data: xArrayStateObj
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '注册数',
+                                type: 'bar',
+                                barGap: 0,
+                                label: labelOption,
+                                data: yArrayStateObj1
+                            },
+                            {
+                                name: '已认证',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj2
+                            },
+                            {
+                                name: '未认证',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj3
+                            },
+                            {
+                                name: '认证失败',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj4
+                            }
+                        ]
+                    };;
+                    if (option && typeof option === "object") {
+                        myChart3.setOption(option, true);
+                    }
+                  }
+             });
+     }
+    </script>
+    <script type="text/javascript">
+    function stateStatisticsMonth() {
+        var dom = document.getElementById("container3");
+        var myChart3 = echarts.init(dom);
+        var app = {};
+        var dataObj = {};
+        var xArrayStateObj = [];
+        var yArrayStateObj1 = [];
+        var yArrayStateObj2 = [];
+        var yArrayStateObj3 = [];
+        var yArrayStateObj4 = [];
+        option = null;
+
+        $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/firm/state/statistics",
+                  data:  JSON.stringify({"category" : "month"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayStateObj.push(key);
+                        yArrayStateObj1.push(dataObj[key][0]);
+                        yArrayStateObj2.push(dataObj[key][1]);
+                        yArrayStateObj3.push(dataObj[key][2]);
+                        yArrayStateObj4.push(dataObj[key][3]);
+                     }
+                     var posList = [
+                        'left', 'right', 'top', 'bottom',
+                        'inside',
+                        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                    ];
+
+                    app.configParameters = {
+                        rotate: {
+                            min: -90,
+                            max: 90
+                        },
+                        align: {
+                            options: {
+                                left: 'left',
+                                center: 'center',
+                                right: 'right'
+                            }
+                        },
+                        verticalAlign: {
+                            options: {
+                                top: 'top',
+                                middle: 'middle',
+                                bottom: 'bottom'
+                            }
+                        },
+                        position: {
+                            options: echarts.util.reduce(posList, function (map, pos) {
+                                map[pos] = pos;
+                                return map;
+                            }, {})
+                        },
+                        distance: {
+                            min: 0,
+                            max: 100
+                        }
+                    };
+
+                    app.config = {
+                        rotate: 90,
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        position: 'insideBottom',
+                        distance: 15,
+                        onChange: function () {
+                            var labelOption = {
+                                normal: {
+                                    rotate: app.config.rotate,
+                                    align: app.config.align,
+                                    verticalAlign: app.config.verticalAlign,
+                                    position: app.config.position,
+                                    distance: app.config.distance
+                                }
+                            };
+                            myChart.setOption({
+                                series: [{
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }]
+                            });
+                        }
+                    };
+
+
+                    var labelOption = {
+                        normal: {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        }
+                    };
+
+                    option = {
+                        color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['注册数', '已认证', '未认证', '认证失败']
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {show: false},
+                                data: xArrayStateObj
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '注册数',
+                                type: 'bar',
+                                barGap: 0,
+                                label: labelOption,
+                                data: yArrayStateObj1
+                            },
+                            {
+                                name: '已认证',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj2
+                            },
+                            {
+                                name: '未认证',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj3
+                            },
+                            {
+                                name: '认证失败',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj4
+                            }
+                        ]
+                    };;
+                    if (option && typeof option === "object") {
+                        myChart3.setOption(option, true);
+                    }
+                  }
+             });
+     }
+    </script>
+    <script type="text/javascript">
+    function stateStatisticsYear() {
+        var dom = document.getElementById("container3");
+        var myChart3 = echarts.init(dom);
+        var app = {};
+        var dataObj = {};
+        var xArrayStateObj = [];
+        var yArrayStateObj1 = [];
+        var yArrayStateObj2 = [];
+        var yArrayStateObj3 = [];
+        var yArrayStateObj4 = [];
+        option = null;
+
+        $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/firm/state/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayStateObj.push(key);
+                        yArrayStateObj1.push(dataObj[key][0]);
+                        yArrayStateObj2.push(dataObj[key][1]);
+                        yArrayStateObj3.push(dataObj[key][2]);
+                        yArrayStateObj4.push(dataObj[key][3]);
+                     }
+                     var posList = [
+                        'left', 'right', 'top', 'bottom',
+                        'inside',
+                        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                    ];
+
+                    app.configParameters = {
+                        rotate: {
+                            min: -90,
+                            max: 90
+                        },
+                        align: {
+                            options: {
+                                left: 'left',
+                                center: 'center',
+                                right: 'right'
+                            }
+                        },
+                        verticalAlign: {
+                            options: {
+                                top: 'top',
+                                middle: 'middle',
+                                bottom: 'bottom'
+                            }
+                        },
+                        position: {
+                            options: echarts.util.reduce(posList, function (map, pos) {
+                                map[pos] = pos;
+                                return map;
+                            }, {})
+                        },
+                        distance: {
+                            min: 0,
+                            max: 100
+                        }
+                    };
+
+                    app.config = {
+                        rotate: 90,
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        position: 'insideBottom',
+                        distance: 15,
+                        onChange: function () {
+                            var labelOption = {
+                                normal: {
+                                    rotate: app.config.rotate,
+                                    align: app.config.align,
+                                    verticalAlign: app.config.verticalAlign,
+                                    position: app.config.position,
+                                    distance: app.config.distance
+                                }
+                            };
+                            myChart.setOption({
+                                series: [{
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }]
+                            });
+                        }
+                    };
+
+
+                    var labelOption = {
+                        normal: {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        }
+                    };
+
+                    option = {
+                        color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['注册数', '已认证', '未认证', '认证失败']
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {show: false},
+                                data: xArrayStateObj
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '注册数',
+                                type: 'bar',
+                                barGap: 0,
+                                label: labelOption,
+                                data: yArrayStateObj1
+                            },
+                            {
+                                name: '已认证',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj2
+                            },
+                            {
+                                name: '未认证',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj3
+                            },
+                            {
+                                name: '认证失败',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj4
+                            }
+                        ]
+                    };;
+                    if (option && typeof option === "object") {
+                        myChart3.setOption(option, true);
+                    }
+                  }
+             });
+     }
+    </script>
+    <footer class="cm-footer"><span class="pull-left">如有疑问请联系 杨昆霖</span><span
+            class="pull-right">&copy; 缤缤果信息科技有限公司</span>
+    </footer>
+</div>
+<script src="assets/js/lib/jquery-2.1.3.min.js"></script>
+<script src="assets/js/jquery.mousewheel.min.js"></script>
+<script src="assets/js/jquery.cookie.min.js"></script>
+<script src="assets/js/fastclick.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/clearmin.min.js"></script>
+<script src="assets/js/demo/home.js"></script>
+
+</body>
+</html>

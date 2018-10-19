@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bbg.STATISTICS.mapper.MineMapper" >
+  <resultMap id="BaseResultMap" type="com.bbg.STATISTICS.model.Mine" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="openId" property="openid" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="TINYINT" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="sendCount" property="sendcount" jdbcType="INTEGER" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="position" property="position" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="successCount" property="successcount" jdbcType="INTEGER" />
+    <result column="failCount" property="failcount" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="modifyTime" property="modifytime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, openId, name, sex, icon, sendCount, phone, position, area, successCount, failCount, 
+    status, createTime, modifyTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_mine
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="clickCount" resultType="java.lang.Integer" parameterType="java.lang.Long" >
+    select
+    count(1)
+    <include refid="Base_Column_List" />
+    from t_mine
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_mine
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bbg.STATISTICS.model.Mine" >
+    insert into t_mine (id, openId, name, 
+      sex, icon, sendCount, 
+      phone, position, area, 
+      successCount, failCount, status, 
+      createTime, modifyTime)
+    values (#{id,jdbcType=BIGINT}, #{openid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{sex,jdbcType=TINYINT}, #{icon,jdbcType=VARCHAR}, #{sendcount,jdbcType=INTEGER}, 
+      #{phone,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR}, #{area,jdbcType=VARCHAR}, 
+      #{successcount,jdbcType=INTEGER}, #{failcount,jdbcType=INTEGER}, #{status,jdbcType=TINYINT}, 
+      #{createtime,jdbcType=TIMESTAMP}, #{modifytime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bbg.STATISTICS.model.Mine" >
+    insert into t_mine
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="openid != null" >
+        openId,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="sex != null" >
+        sex,
+      </if>
+      <if test="icon != null" >
+        icon,
+      </if>
+      <if test="sendcount != null" >
+        sendCount,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="position != null" >
+        position,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="successcount != null" >
+        successCount,
+      </if>
+      <if test="failcount != null" >
+        failCount,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="modifytime != null" >
+        modifyTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="openid != null" >
+        #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="sendcount != null" >
+        #{sendcount,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null" >
+        #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="successcount != null" >
+        #{successcount,jdbcType=INTEGER},
+      </if>
+      <if test="failcount != null" >
+        #{failcount,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifytime != null" >
+        #{modifytime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bbg.STATISTICS.model.Mine" >
+    update t_mine
+    <set >
+      <if test="openid != null" >
+        openId = #{openid,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null" >
+        sex = #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="icon != null" >
+        icon = #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="sendcount != null" >
+        sendCount = #{sendcount,jdbcType=INTEGER},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="position != null" >
+        position = #{position,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="successcount != null" >
+        successCount = #{successcount,jdbcType=INTEGER},
+      </if>
+      <if test="failcount != null" >
+        failCount = #{failcount,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifytime != null" >
+        modifyTime = #{modifytime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bbg.STATISTICS.model.Mine" >
+    update t_mine
+    set openId = #{openid,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=TINYINT},
+      icon = #{icon,jdbcType=VARCHAR},
+      sendCount = #{sendcount,jdbcType=INTEGER},
+      phone = #{phone,jdbcType=VARCHAR},
+      position = #{position,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      successCount = #{successcount,jdbcType=INTEGER},
+      failCount = #{failcount,jdbcType=INTEGER},
+      status = #{status,jdbcType=TINYINT},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      modifyTime = #{modifytime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

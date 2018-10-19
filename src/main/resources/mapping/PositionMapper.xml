@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bbg.STATISTICS.mapper.PositionMapper" >
+  <resultMap id="BaseResultMap" type="com.bbg.STATISTICS.model.Position" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="userId" property="userid" jdbcType="BIGINT" />
+    <result column="firmId" property="firmid" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="areaId" property="areaid" jdbcType="BIGINT" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="nature" property="nature" jdbcType="VARCHAR" />
+    <result column="salary" property="salary" jdbcType="VARCHAR" />
+    <result column="education" property="education" jdbcType="VARCHAR" />
+    <result column="years" property="years" jdbcType="VARCHAR" />
+    <result column="isTrain" property="istrain" jdbcType="TINYINT" />
+    <result column="trainContent" property="traincontent" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="keyword" property="keyword" jdbcType="VARCHAR" />
+    <result column="isPuton" property="isputon" jdbcType="TINYINT" />
+    <result column="isHot" property="ishot" jdbcType="TINYINT" />
+    <result column="type" property="type" jdbcType="TINYINT" />
+    <result column="priority" property="priority" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="modifyTime" property="modifytime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, userId, firmId, name, areaId, area, nature, salary, education, years, isTrain, 
+    trainContent, description, keyword, isPuton, isHot, type, priority, status, createTime, 
+    modifyTime
+  </sql>
+
+  <select id="positionCount" resultType="java.lang.Integer" parameterType="java.lang.Long" >
+    select
+    count(1)
+    <include refid="Base_Column_List" />
+    from t_position
+  </select>
+
+  <!--按时间分组查询职位数-->
+  <select id="createTimeQuery" resultType="com.bbg.STATISTICS.model.ResultModel.PositionResult" parameterType="java.lang.String">
+    SELECT
+    <if test="_parameter == 'year'">
+      DATE_FORMAT(tp.createTime,'%Y') AS createTime,
+      COUNT(1) AS positionCount
+      FROM t_position tp
+      GROUP BY DATE_FORMAT(tp.createTime,'%Y');
+    </if>
+    <if test="_parameter == 'month'">
+      DATE_FORMAT(tp.createTime,'%Y-%m') AS createTime,
+      COUNT(1) AS positionCount
+      FROM t_position tp
+      GROUP BY DATE_FORMAT(tp.createTime,'%Y-%m');
+    </if>
+    <if test="_parameter == 'day'">
+      DATE_FORMAT(tp.createTime,'%Y-%m-%d') AS createTime,
+      COUNT(1) AS positionCount
+      FROM t_position tp
+      GROUP BY DATE_FORMAT(tp.createTime,'%Y-%m-%d')
+      LIMIT 31;
+    </if>
+
+  </select>
+
+  <!--按地区分组查询职位数-->
+  <select id="positionCityQuery" resultType="com.bbg.STATISTICS.model.ResultModel.PositionResult" parameterType="java.lang.String">
+    SELECT ta.`name` AS city,
+    COUNT(ta.`name`) AS cityCount
+    FROM t_area ta
+    JOIN (SELECT ta.pId, ta.`name` FROM t_area ta JOIN t_position tp ON tp.areaId = ta.id) temp
+    ON temp.pId = ta.id
+    GROUP BY city
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_position
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_position
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bbg.STATISTICS.model.Position" >
+    insert into t_position (id, userId, firmId, 
+      name, areaId, area, 
+      nature, salary, education, 
+      years, isTrain, trainContent, 
+      description, keyword, isPuton, 
+      isHot, type, priority, 
+      status, createTime, modifyTime
+      )
+    values (#{id,jdbcType=BIGINT}, #{userid,jdbcType=BIGINT}, #{firmid,jdbcType=BIGINT}, 
+      #{name,jdbcType=VARCHAR}, #{areaid,jdbcType=BIGINT}, #{area,jdbcType=VARCHAR}, 
+      #{nature,jdbcType=VARCHAR}, #{salary,jdbcType=VARCHAR}, #{education,jdbcType=VARCHAR}, 
+      #{years,jdbcType=VARCHAR}, #{istrain,jdbcType=TINYINT}, #{traincontent,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{keyword,jdbcType=VARCHAR}, #{isputon,jdbcType=TINYINT}, 
+      #{ishot,jdbcType=TINYINT}, #{type,jdbcType=TINYINT}, #{priority,jdbcType=INTEGER}, 
+      #{status,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP}, #{modifytime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bbg.STATISTICS.model.Position" >
+    insert into t_position
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="firmid != null" >
+        firmId,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="areaid != null" >
+        areaId,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="nature != null" >
+        nature,
+      </if>
+      <if test="salary != null" >
+        salary,
+      </if>
+      <if test="education != null" >
+        education,
+      </if>
+      <if test="years != null" >
+        years,
+      </if>
+      <if test="istrain != null" >
+        isTrain,
+      </if>
+      <if test="traincontent != null" >
+        trainContent,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="keyword != null" >
+        keyword,
+      </if>
+      <if test="isputon != null" >
+        isPuton,
+      </if>
+      <if test="ishot != null" >
+        isHot,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="priority != null" >
+        priority,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="modifytime != null" >
+        modifyTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="firmid != null" >
+        #{firmid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="areaid != null" >
+        #{areaid,jdbcType=BIGINT},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="nature != null" >
+        #{nature,jdbcType=VARCHAR},
+      </if>
+      <if test="salary != null" >
+        #{salary,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null" >
+        #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="years != null" >
+        #{years,jdbcType=VARCHAR},
+      </if>
+      <if test="istrain != null" >
+        #{istrain,jdbcType=TINYINT},
+      </if>
+      <if test="traincontent != null" >
+        #{traincontent,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="keyword != null" >
+        #{keyword,jdbcType=VARCHAR},
+      </if>
+      <if test="isputon != null" >
+        #{isputon,jdbcType=TINYINT},
+      </if>
+      <if test="ishot != null" >
+        #{ishot,jdbcType=TINYINT},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="priority != null" >
+        #{priority,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifytime != null" >
+        #{modifytime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bbg.STATISTICS.model.Position" >
+    update t_position
+    <set >
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="firmid != null" >
+        firmId = #{firmid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="areaid != null" >
+        areaId = #{areaid,jdbcType=BIGINT},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="nature != null" >
+        nature = #{nature,jdbcType=VARCHAR},
+      </if>
+      <if test="salary != null" >
+        salary = #{salary,jdbcType=VARCHAR},
+      </if>
+      <if test="education != null" >
+        education = #{education,jdbcType=VARCHAR},
+      </if>
+      <if test="years != null" >
+        years = #{years,jdbcType=VARCHAR},
+      </if>
+      <if test="istrain != null" >
+        isTrain = #{istrain,jdbcType=TINYINT},
+      </if>
+      <if test="traincontent != null" >
+        trainContent = #{traincontent,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="keyword != null" >
+        keyword = #{keyword,jdbcType=VARCHAR},
+      </if>
+      <if test="isputon != null" >
+        isPuton = #{isputon,jdbcType=TINYINT},
+      </if>
+      <if test="ishot != null" >
+        isHot = #{ishot,jdbcType=TINYINT},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="priority != null" >
+        priority = #{priority,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifytime != null" >
+        modifyTime = #{modifytime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bbg.STATISTICS.model.Position" >
+    update t_position
+    set userId = #{userid,jdbcType=BIGINT},
+      firmId = #{firmid,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      areaId = #{areaid,jdbcType=BIGINT},
+      area = #{area,jdbcType=VARCHAR},
+      nature = #{nature,jdbcType=VARCHAR},
+      salary = #{salary,jdbcType=VARCHAR},
+      education = #{education,jdbcType=VARCHAR},
+      years = #{years,jdbcType=VARCHAR},
+      isTrain = #{istrain,jdbcType=TINYINT},
+      trainContent = #{traincontent,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      keyword = #{keyword,jdbcType=VARCHAR},
+      isPuton = #{isputon,jdbcType=TINYINT},
+      isHot = #{ishot,jdbcType=TINYINT},
+      type = #{type,jdbcType=TINYINT},
+      priority = #{priority,jdbcType=INTEGER},
+      status = #{status,jdbcType=TINYINT},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      modifyTime = #{modifytime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

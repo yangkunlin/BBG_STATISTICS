@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bbg.STATISTICS.mapper.FirmMapper" >
+  <resultMap id="BaseResultMap" type="com.bbg.STATISTICS.model.Firm" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="userId" property="userid" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="logo" property="logo" jdbcType="VARCHAR" />
+    <result column="kind" property="kind" jdbcType="VARCHAR" />
+    <result column="scale" property="scale" jdbcType="VARCHAR" />
+    <result column="categoryId" property="categoryid" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="introduction" property="introduction" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="license" property="license" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="TINYINT" />
+    <result column="status" property="status" jdbcType="TINYINT" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="modifyTime" property="modifytime" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, userId, name, logo, kind, scale, categoryId, address, introduction, phone, license, 
+    state, status, createTime, modifyTime
+  </sql>
+  <!--按天分组查询认证数-->
+  <select id="stateQueryByDay" resultType="com.bbg.STATISTICS.model.ResultModel.FirmQueryResult" parameterType="java.lang.String">
+    SELECT
+    DATE_FORMAT(createTime,'%Y-%m-%d') as createTime,
+    COUNT(state) AS stateCount,
+    COUNT(CASE WHEN state = '1' THEN state END) AS state1Count,
+    COUNT(CASE WHEN state = '2'  OR state = '4' THEN state END) AS state2Count,
+    COUNT(CASE WHEN state = '3' THEN state END) AS state3Count
+    FROM t_firm
+    GROUP BY DATE_FORMAT(createTime,'%Y-%m-%d')
+    ORDER BY DATE_FORMAT(createTime,'%Y-%m-%d') DESC
+    LIMIT 10;
+  </select>
+  <!--按月分组查询认证数-->
+  <select id="stateQueryByMonth" resultType="com.bbg.STATISTICS.model.ResultModel.FirmQueryResult" parameterType="java.lang.String">
+    SELECT
+    DATE_FORMAT(createTime,'%Y-%m') as createTime,
+    COUNT(state) AS stateCount,
+    COUNT(CASE WHEN state = '1' THEN state END) AS state1Count,
+    COUNT(CASE WHEN state = '2'  OR state = '4' THEN state END) AS state2Count,
+    COUNT(CASE WHEN state = '3' THEN state END) AS state3Count
+    FROM t_firm
+    GROUP BY DATE_FORMAT(createTime,'%Y-%m')
+    ORDER BY DATE_FORMAT(createTime,'%Y-%m') DESC
+    LIMIT 12;
+  </select>
+  <!--按年分组查询认证数-->
+  <select id="stateQueryByYear" resultType="com.bbg.STATISTICS.model.ResultModel.FirmQueryResult" parameterType="java.lang.String">
+    SELECT
+    DATE_FORMAT(createTime,'%Y') AS createTime,
+    COUNT(state) AS stateCount,
+    COUNT(CASE WHEN state = '1' THEN state END) AS state1Count,
+    COUNT(CASE WHEN state = '2' OR state = '4' THEN state END) AS state2Count,
+    COUNT(CASE WHEN state = '3' THEN state END) AS state3Count
+    FROM t_firm
+    GROUP BY DATE_FORMAT(createTime,'%Y');
+  </select>
+
+  <!--按公司规模分组查询数量-->
+  <select id="scaleQuery" resultType="com.bbg.STATISTICS.model.ResultModel.FirmQueryResult" parameterType="java.lang.String">
+    SELECT
+    scale as scale,COUNT(scale) as scaleCount
+    FROM t_firm
+    GROUP BY scale;
+  </select>
+
+  <!--按公司分类分组查询数量-->
+  <select id="categoryQuery" resultType="com.bbg.STATISTICS.model.ResultModel.FirmQueryResult" parameterType="java.lang.String">
+    SELECT
+    t_category.`name` AS category,COUNT(categoryId) AS categoryCount
+    FROM t_firm
+    INNER JOIN t_category ON t_firm.categoryId = t_category.id
+    GROUP BY category;
+  </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_firm
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_firm
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bbg.STATISTICS.model.Firm" >
+    insert into t_firm (id, userId, name, 
+      logo, kind, scale, 
+      categoryId, address, introduction, 
+      phone, license, state, 
+      status, createTime, modifyTime
+      )
+    values (#{id,jdbcType=BIGINT}, #{userid,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{logo,jdbcType=VARCHAR}, #{kind,jdbcType=VARCHAR}, #{scale,jdbcType=VARCHAR}, 
+      #{categoryid,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{introduction,jdbcType=VARCHAR}, 
+      #{phone,jdbcType=VARCHAR}, #{license,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT}, 
+      #{status,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP}, #{modifytime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bbg.STATISTICS.model.Firm" >
+    insert into t_firm
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userid != null" >
+        userId,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="logo != null" >
+        logo,
+      </if>
+      <if test="kind != null" >
+        kind,
+      </if>
+      <if test="scale != null" >
+        scale,
+      </if>
+      <if test="categoryid != null" >
+        categoryId,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="introduction != null" >
+        introduction,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="license != null" >
+        license,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createtime != null" >
+        createTime,
+      </if>
+      <if test="modifytime != null" >
+        modifyTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userid != null" >
+        #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="logo != null" >
+        #{logo,jdbcType=VARCHAR},
+      </if>
+      <if test="kind != null" >
+        #{kind,jdbcType=VARCHAR},
+      </if>
+      <if test="scale != null" >
+        #{scale,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryid != null" >
+        #{categoryid,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="license != null" >
+        #{license,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifytime != null" >
+        #{modifytime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bbg.STATISTICS.model.Firm" >
+    update t_firm
+    <set >
+      <if test="userid != null" >
+        userId = #{userid,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="logo != null" >
+        logo = #{logo,jdbcType=VARCHAR},
+      </if>
+      <if test="kind != null" >
+        kind = #{kind,jdbcType=VARCHAR},
+      </if>
+      <if test="scale != null" >
+        scale = #{scale,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryid != null" >
+        categoryId = #{categoryid,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="introduction != null" >
+        introduction = #{introduction,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="license != null" >
+        license = #{license,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null" >
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifytime != null" >
+        modifyTime = #{modifytime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bbg.STATISTICS.model.Firm" >
+    update t_firm
+    set userId = #{userid,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      logo = #{logo,jdbcType=VARCHAR},
+      kind = #{kind,jdbcType=VARCHAR},
+      scale = #{scale,jdbcType=VARCHAR},
+      categoryId = #{categoryid,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      introduction = #{introduction,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      license = #{license,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      createTime = #{createtime,jdbcType=TIMESTAMP},
+      modifyTime = #{modifytime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bbg.STATISTICS.mapper.ResumeMapper">
+    <resultMap id="BaseResultMap" type="com.bbg.STATISTICS.model.Resume">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="openId" jdbcType="VARCHAR" property="openid"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="old" jdbcType="TINYINT" property="old"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="workYears" jdbcType="INTEGER" property="workyears"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="retiredDate" jdbcType="DATE" property="retireddate"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="school" jdbcType="VARCHAR" property="school"/>
+        <result column="areaId" jdbcType="BIGINT" property="areaid"/>
+        <result column="nature" jdbcType="VARCHAR" property="nature"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="position" jdbcType="VARCHAR" property="position"/>
+        <result column="categoryId" jdbcType="BIGINT" property="categoryid"/>
+        <result column="salary" jdbcType="VARCHAR" property="salary"/>
+        <result column="specialty" jdbcType="VARCHAR" property="specialty"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="createTime" jdbcType="TIMESTAMP" property="createtime"/>
+        <result column="modifyTime" jdbcType="TIMESTAMP" property="modifytime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, openId, name, old, sex, workYears, birthday, retiredDate, phone, education, school,
+        areaId, nature, address, position, categoryId, salary, specialty, status, createTime,
+        modifyTime
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_resume
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <!--按地区分组查询简历数-->
+    <select id="resumeCityQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult">
+        SELECT
+        address AS city,
+        COUNT(address) AS cityCount
+        FROM t_resume
+        GROUP BY address;
+    </select>
+
+    <!--分组查询期望月薪-->
+    <select id="exceptedSalaryQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult">
+        SELECT salary AS salary, COUNT(salary) AS salaryCount
+        FROM t_resume GROUP BY salary
+    </select>
+
+    <!--分组查询期望职位-->
+    <select id="exceptedPositionQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult">
+        SELECT position AS position, COUNT(position) AS positionCount
+        FROM t_resume GROUP BY position
+    </select>
+
+    <!--分组查询期望职位类型（全职or兼职）-->
+    <select id="exceptedNatureQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult">
+        SELECT nature AS nature, COUNT(nature) AS natureCount
+        FROM t_resume GROUP BY nature
+    </select>
+
+    <!--分组查询年龄数-->
+    <select id="oldQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult">
+        SELECT old AS old, COUNT(old) AS oldCount
+        FROM t_resume GROUP BY old
+    </select>
+
+    <!--分组查询学历数-->
+    <select id="educationQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult">
+        SELECT education AS education, COUNT(education) AS educationCount
+        FROM t_resume GROUP BY education
+    </select>
+
+    <!--查询简历投递情况-->
+    <select id="sendQuery" parameterType="java.lang.String"
+            resultType="com.bbg.STATISTICS.model.ResultModel.FirmResumeResult">
+        SELECT
+        t_firm.`name` AS firmName,
+        COUNT(1) AS sendCount,
+        COUNT(CASE WHEN t_firm_resume.state = 1 THEN t_firm_resume.state END) AS sendCount1,
+        COUNT(CASE WHEN t_firm_resume.state = 2 THEN t_firm_resume.state END) AS sendCount2,
+        COUNT(CASE WHEN t_firm_resume.state = 3 THEN t_firm_resume.state END) AS sendCount3
+        FROM t_firm_resume JOIN t_firm ON t_firm_resume.firmId = t_firm.id GROUP BY firmId ORDER BY sendCount DESC
+    </select>
+
+    <!--按天分组查询退伍年限数-->
+    <select id="veteranTimeQueryByDay" resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult"
+            parameterType="java.lang.String">
+        SELECT
+        DATE_FORMAT(createTime,'%Y-%m-%d') as createTime,
+        COUNT(1) AS veteranTimeCount,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') = DATE_FORMAT(NOW(), '%Y') THEN DATE_FORMAT(retiredDate,'%Y') END)
+        AS veteranTimeCount1,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') = DATE_FORMAT(NOW(), '%Y') -1 THEN DATE_FORMAT(retiredDate,'%Y')
+        END) AS veteranTimeCount2,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') &lt; DATE_FORMAT(NOW(), '%Y') -1 THEN
+        DATE_FORMAT(retiredDate,'%Y') END) AS veteranTimeCount3
+        FROM t_resume
+        GROUP BY DATE_FORMAT(createTime,'%Y-%m-%d')
+        ORDER BY DATE_FORMAT(createTime,'%Y-%m-%d') DESC
+        LIMIT 10;
+    </select>
+    <!--按月分组查询退伍年限数-->
+    <select id="veteranTimeQueryByMonth" resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult"
+            parameterType="java.lang.String">
+        SELECT
+        DATE_FORMAT(createTime,'%Y-%m') as createTime,
+        COUNT(1) AS veteranTimeCount,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') = DATE_FORMAT(NOW(), '%Y') THEN DATE_FORMAT(retiredDate,'%Y') END)
+        AS veteranTimeCount1,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') = DATE_FORMAT(NOW(), '%Y') -1 THEN DATE_FORMAT(retiredDate,'%Y')
+        END) AS veteranTimeCount2,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') &lt; DATE_FORMAT(NOW(), '%Y') -1 THEN
+        DATE_FORMAT(retiredDate,'%Y') END) AS veteranTimeCount3
+        FROM t_resume
+        GROUP BY DATE_FORMAT(createTime,'%Y-%m')
+        ORDER BY DATE_FORMAT(createTime,'%Y-%m') DESC
+        LIMIT 12;
+    </select>
+    <!--按年分组查询退伍年限数-->
+    <select id="veteranTimeQueryByYear" resultType="com.bbg.STATISTICS.model.ResultModel.ResumeResult"
+            parameterType="java.lang.String">
+        SELECT
+        DATE_FORMAT(createTime,'%Y') as createTime,
+        COUNT(1) AS veteranTimeCount,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') = DATE_FORMAT(NOW(), '%Y') THEN DATE_FORMAT(retiredDate,'%Y') END)
+        AS veteranTimeCount1,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') = DATE_FORMAT(NOW(), '%Y') -1 THEN DATE_FORMAT(retiredDate,'%Y')
+        END) AS veteranTimeCount2,
+        COUNT(CASE WHEN DATE_FORMAT(retiredDate,'%Y') &lt; DATE_FORMAT(NOW(), '%Y') -1 THEN
+        DATE_FORMAT(retiredDate,'%Y') END) AS veteranTimeCount3
+        FROM t_resume
+        GROUP BY DATE_FORMAT(createTime,'%Y');
+    </select>
+
+    <!-- 获取记录总数 -->
+    <select id="getSendTotal" resultType="int">
+        SELECT count(1) FROM t_firm_resume
+    </select>
+
+    <!-- 分页查询所有信息记录 -->
+    <select id="getSendListPage" resultType="com.bbg.STATISTICS.model.ResultModel.FirmResumeResult">
+        SELECT
+        tf.`name` AS firmName,
+        tf.phone AS firmPhone,
+        tfr.firmId,
+        tfr.openid,
+        tfr.resumeId,
+        tfr.positionId,
+        tfr.createTime AS createTime,
+        tp.area AS address,
+        tp.`name`AS positionName,
+        tr.phone AS userPhone,
+        (CASE tfr.state
+        WHEN 1 THEN
+        "待处理"
+        when 2 THEN
+        "已接收"
+        ELSE "已拒绝"
+        END) AS state,
+        tr.`name` AS userName
+        FROM t_firm_resume AS tfr
+        JOIN t_firm AS tf ON tf.id = tfr.firmId
+        JOIN t_position AS tp ON tfr.positionId = tp.id
+        JOIN t_resume AS tr ON tr.id = tfr.resumeId
+        ORDER BY createTime DESC
+        LIMIT #{offset},#{limit}
+    </select>
+
+    <!-- 分页查询所有信息记录带排序 -->
+    <select id="getSendPageSort" resultType="com.bbg.STATISTICS.model.ResultModel.FirmResumeResult">
+        SELECT
+        tf.`name` AS firmName,
+        tf.phone AS firmPhone,
+        tfr.firmId,
+        tfr.openid,
+        tfr.resumeId,
+        tfr.positionId,
+        tfr.createTime AS createTime,
+        tp.area AS address,
+        tp.`name`AS positionName,
+        tr.phone AS userPhone,
+        (CASE tfr.state
+        WHEN 1 THEN
+        '待处理'
+        when 2 THEN
+        '已接收'
+        ELSE '已拒绝'
+        END) AS state,
+        tr.`name` AS userName
+        FROM t_firm_resume AS tfr
+        JOIN t_firm AS tf ON tf.id = tfr.firmId
+        JOIN t_position AS tp ON tfr.positionId = tp.id
+        JOIN t_resume AS tr ON tr.id = tfr.resumeId
+        ORDER BY ${sort} ${sortOrder}
+        LIMIT ${offset},${limit}
+    </select>
+
+    <!-- 分页搜索 -->
+    <select id="searchBySingleColumn" resultType="com.bbg.STATISTICS.model.ResultModel.FirmResumeResult">
+        SELECT
+        tf.`name` AS firmName,
+        tf.phone AS firmPhone,
+        tfr.firmId,
+        tfr.openid,
+        tfr.resumeId,
+        tfr.positionId,
+        tfr.createTime AS createTime,
+        tp.area AS address,
+        tp.`name`AS positionName,
+        tr.phone AS userPhone,
+        (CASE tfr.state
+        WHEN 1 THEN
+        '待处理'
+        when 2 THEN
+        '已接收'
+        ELSE '已拒绝'
+        END) AS state,
+        tr.`name` AS userName
+        FROM t_firm_resume AS tfr
+        JOIN t_firm AS tf ON tf.id = tfr.firmId
+        JOIN t_position AS tp ON tfr.positionId = tp.id
+        JOIN t_resume AS tr ON tr.id = tfr.resumeId
+        <if test="searchTarget == 'userName'">
+            WHERE tr.`name` LIKE CONCAT('%',#{searchContent},'%')
+        </if>
+        <if test="searchTarget == 'firmName'">
+            WHERE tf.`name` LIKE CONCAT('%',#{searchContent},'%')
+        </if>
+        LIMIT ${offset},${limit}
+    </select>
+
+    <!-- 分页搜索带排序 -->
+    <select id="searchBySingleColumnSort" resultType="com.bbg.STATISTICS.model.ResultModel.FirmResumeResult">
+        SELECT
+        tf.`name` AS firmName,
+        tf.phone AS firmPhone,
+        tfr.firmId,
+        tfr.openid,
+        tfr.resumeId,
+        tfr.positionId,
+        tfr.createTime AS createTime,
+        tp.area AS address,
+        tp.`name`AS positionName,
+        tr.phone AS userPhone,
+        (CASE tfr.state
+        WHEN 1 THEN
+        '待处理'
+        when 2 THEN
+        '已接收'
+        ELSE '已拒绝'
+        END) AS state,
+        tr.`name` AS userName
+        FROM t_firm_resume AS tfr
+        JOIN t_firm AS tf ON tf.id = tfr.firmId
+        JOIN t_position AS tp ON tfr.positionId = tp.id
+        JOIN t_resume AS tr ON tr.id = tfr.resumeId
+        <if test="searchTarget == 'userName'">
+            WHERE tr.`name` LIKE CONCAT('%',#{searchContent},'%')
+        </if>
+        <if test="searchTarget == 'firmName'">
+            WHERE tf.`name` LIKE CONCAT('%',#{searchContent},'%')
+        </if>
+        order by ${sort} ${sortOrder}
+        LIMIT ${offset},${limit}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from t_resume
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.bbg.STATISTICS.model.Resume">
+        insert into t_resume (id, openId, name,
+        old, sex, workYears,
+        birthday, retiredDate, phone,
+        education, school, areaId,
+        nature, address, position,
+        categoryId, salary, specialty,
+        status, createTime, modifyTime
+        )
+        values (#{id,jdbcType=BIGINT}, #{openid,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+        #{old,jdbcType=TINYINT}, #{sex,jdbcType=TINYINT}, #{workyears,jdbcType=INTEGER},
+        #{birthday,jdbcType=DATE}, #{retireddate,jdbcType=DATE}, #{phone,jdbcType=VARCHAR},
+        #{education,jdbcType=VARCHAR}, #{school,jdbcType=VARCHAR}, #{areaid,jdbcType=BIGINT},
+        #{nature,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{position,jdbcType=VARCHAR},
+        #{categoryid,jdbcType=BIGINT}, #{salary,jdbcType=VARCHAR}, #{specialty,jdbcType=VARCHAR},
+        #{status,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP}, #{modifytime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+    <insert id="insertSelective" parameterType="com.bbg.STATISTICS.model.Resume">
+        insert into t_resume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="openid != null">
+                openId,
+            </if>
+            <if test="name != null">
+                name,
+            </if>
+            <if test="old != null">
+                old,
+            </if>
+            <if test="sex != null">
+                sex,
+            </if>
+            <if test="workyears != null">
+                workYears,
+            </if>
+            <if test="birthday != null">
+                birthday,
+            </if>
+            <if test="retireddate != null">
+                retiredDate,
+            </if>
+            <if test="phone != null">
+                phone,
+            </if>
+            <if test="education != null">
+                education,
+            </if>
+            <if test="school != null">
+                school,
+            </if>
+            <if test="areaid != null">
+                areaId,
+            </if>
+            <if test="nature != null">
+                nature,
+            </if>
+            <if test="address != null">
+                address,
+            </if>
+            <if test="position != null">
+                position,
+            </if>
+            <if test="categoryid != null">
+                categoryId,
+            </if>
+            <if test="salary != null">
+                salary,
+            </if>
+            <if test="specialty != null">
+                specialty,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createtime != null">
+                createTime,
+            </if>
+            <if test="modifytime != null">
+                modifyTime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="openid != null">
+                #{openid,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="old != null">
+                #{old,jdbcType=TINYINT},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="workyears != null">
+                #{workyears,jdbcType=INTEGER},
+            </if>
+            <if test="birthday != null">
+                #{birthday,jdbcType=DATE},
+            </if>
+            <if test="retireddate != null">
+                #{retireddate,jdbcType=DATE},
+            </if>
+            <if test="phone != null">
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="education != null">
+                #{education,jdbcType=VARCHAR},
+            </if>
+            <if test="school != null">
+                #{school,jdbcType=VARCHAR},
+            </if>
+            <if test="areaid != null">
+                #{areaid,jdbcType=BIGINT},
+            </if>
+            <if test="nature != null">
+                #{nature,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="position != null">
+                #{position,jdbcType=VARCHAR},
+            </if>
+            <if test="categoryid != null">
+                #{categoryid,jdbcType=BIGINT},
+            </if>
+            <if test="salary != null">
+                #{salary,jdbcType=VARCHAR},
+            </if>
+            <if test="specialty != null">
+                #{specialty,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="createtime != null">
+                #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifytime != null">
+                #{modifytime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.bbg.STATISTICS.model.Resume">
+        update t_resume
+        <set>
+            <if test="openid != null">
+                openId = #{openid,jdbcType=VARCHAR},
+            </if>
+            <if test="name != null">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="old != null">
+                old = #{old,jdbcType=TINYINT},
+            </if>
+            <if test="sex != null">
+                sex = #{sex,jdbcType=TINYINT},
+            </if>
+            <if test="workyears != null">
+                workYears = #{workyears,jdbcType=INTEGER},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday,jdbcType=DATE},
+            </if>
+            <if test="retireddate != null">
+                retiredDate = #{retireddate,jdbcType=DATE},
+            </if>
+            <if test="phone != null">
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="education != null">
+                education = #{education,jdbcType=VARCHAR},
+            </if>
+            <if test="school != null">
+                school = #{school,jdbcType=VARCHAR},
+            </if>
+            <if test="areaid != null">
+                areaId = #{areaid,jdbcType=BIGINT},
+            </if>
+            <if test="nature != null">
+                nature = #{nature,jdbcType=VARCHAR},
+            </if>
+            <if test="address != null">
+                address = #{address,jdbcType=VARCHAR},
+            </if>
+            <if test="position != null">
+                position = #{position,jdbcType=VARCHAR},
+            </if>
+            <if test="categoryid != null">
+                categoryId = #{categoryid,jdbcType=BIGINT},
+            </if>
+            <if test="salary != null">
+                salary = #{salary,jdbcType=VARCHAR},
+            </if>
+            <if test="specialty != null">
+                specialty = #{specialty,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="createtime != null">
+                createTime = #{createtime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifytime != null">
+                modifyTime = #{modifytime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.bbg.STATISTICS.model.Resume">
+        update t_resume
+        set openId = #{openid,jdbcType=VARCHAR},
+        name = #{name,jdbcType=VARCHAR},
+        old = #{old,jdbcType=TINYINT},
+        sex = #{sex,jdbcType=TINYINT},
+        workYears = #{workyears,jdbcType=INTEGER},
+        birthday = #{birthday,jdbcType=DATE},
+        retiredDate = #{retireddate,jdbcType=DATE},
+        phone = #{phone,jdbcType=VARCHAR},
+        education = #{education,jdbcType=VARCHAR},
+        school = #{school,jdbcType=VARCHAR},
+        areaId = #{areaid,jdbcType=BIGINT},
+        nature = #{nature,jdbcType=VARCHAR},
+        address = #{address,jdbcType=VARCHAR},
+        position = #{position,jdbcType=VARCHAR},
+        categoryId = #{categoryid,jdbcType=BIGINT},
+        salary = #{salary,jdbcType=VARCHAR},
+        specialty = #{specialty,jdbcType=VARCHAR},
+        status = #{status,jdbcType=TINYINT},
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+        modifyTime = #{modifytime,jdbcType=TIMESTAMP}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap-clearmin.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/roboto.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/material-design.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/small-n-flat.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <title>Clearmin template</title>
+</head>
+<body class="cm-no-transition cm-1-navbar">
+<div id="cm-menu">
+    <nav class="cm-navbar cm-navbar-primary">
+        <div class="cm-flex">
+            <div class="cm-logo"></div>
+        </div>
+        <div class="btn btn-primary md-menu-white" data-toggle="cm-menu"></div>
+    </nav>
+    <div id="cm-menu-content">
+        <div id="cm-menu-items-wrapper">
+            <div id="cm-menu-scroller">
+                <ul class="cm-menu-items">
+                    <li class="active"><a href="/firmStatistics" class="sf-house">企业信息统计</a></li>
+                    <li><a href="/userInfoStatistics" class="sf-dashboard">用户信息统计</a></li>
+                    <li><a href="/resumeStatistics" class="sf-notepad">简历信息统计</a></li>
+                    <li><a href="/sendStatistics" class="sf-cat">简历投递统计</a></li>
+                    <li><a href="/positionStatistics" class="sf-lock-open">职位信息统计</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<header id="cm-header">
+    <nav class="cm-navbar cm-navbar-primary">
+        <div class="btn btn-primary md-menu-white hidden-md hidden-lg" data-toggle="cm-menu"></div>
+        <div class="cm-flex">
+            <h1>兵果果业务系统</h1>
+            <form id="cm-search" action="http://www.baidu.com/baidu" method="get" target="_blank">
+                <input name=tn type=hidden value=baidu>
+                <input type="search" name="word" autocomplete="off" placeholder="搜索">
+            </form>
+        </div>
+        <div class="pull-right">
+            <div id="cm-search-btn" class="btn btn-primary md-search-white" data-toggle="cm-search"></div>
+        </div>
+        <div class="dropdown pull-right">
+            <button class="btn btn-primary md-account-circle-white" data-toggle="dropdown"></button>
+            <ul class="dropdown-menu">
+                <li class="disabled text-center">
+                    <a style="cursor:default;" id="a-realname"><strong>yangkunlin</strong></a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="#" id="/user/changepassword"><i class="fa fa-fw fa-cog"></i>修改密码</a>
+                </li>
+                <li>
+                    <a href="/user/logout" id="logout"><i class="fa fa-fw fa-sign-out"></i>退出登陆</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
+<div id="global">
+    <ul>
+        <li>
+            <div id="container1" style="height:400px; width:95%; float:left; display:inline; border:black 1px solid; margin: 25px; background:#fff"></div>
+        </li>
+        <li>
+            <div id="container2" style="height:400px; width:47%; float:left; display:inline; border:black 1px solid; margin-left: 25px; margin-right: 25px; margin-bottom:25px; background:#fff"></div>
+            <div id="container4" style="height:400px; width:47%; float:left; display:inline; border:black 1px solid; margin-right: 25px; margin-bottom:25px; background:#fff"></div>
+        </li>
+        <li>
+            <div style="height: 400px">
+                <div class="tabbable" id="tabs-180846">
+                    <ul class="nav nav-tabs" style="float:right" title="入驻企业数统计">
+                        <li class="active">
+                            <a data-toggle="tab" name="day" onclick="stateStatisticsDay()">日统计</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" name="month" onclick="stateStatisticsMonth()">月统计</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" name="year" onclick="stateStatisticsYear()">年统计</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="container_day">
+                            <div id="container3" style="height:400px; width:95%; float:left; display:inline; background:#fff; margin-left:25px； margin-bottom:25px; "></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div id="container5" style="height:400px; width:47%; float:left; display:inline; border:black 1px solid; margin-left: 25px; margin-right: 25px;background:#fff"></div>
+            <div id="container6" style="height:400px; width:47%; float:left; display:inline; border:black 1px solid; margin-right: 25px; background:#fff"></div>
+        </li>
+    </ul>
+
+    <script type="text/javascript">
+            var dom1 = document.getElementById("container1");
+            var myChart1 = echarts.init(dom1);
+            var app = {};
+            var dataObj = {};
+            var xArrayUserObj = [];
+            var yArrayUserObj = [];
+            option = null;
+
+            $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/city/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayUserObj.push(key);
+                        yArrayUserObj.push(dataObj[key]);
+                     }
+                     option = {
+                        title : {
+                            text: '简历地区分布统计',
+                            subtext: '数据来自兵果果招聘',
+                            x:'center'
+                        },
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['简历数'],
+                            x:'right',
+                            y:'bottom'
+                        },
+                        toolbox: {
+                            show : true,
+                            feature : {
+                                dataView : {show: true, readOnly: false},
+                                magicType : {show: true, type: ['line', 'bar']},
+                                restore : {show: true},
+                                saveAsImage : {show: true}
+                            }
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : xArrayUserObj
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'简历数',
+                                type:'bar',
+                                data:yArrayUserObj,
+                                markPoint : {
+                                    data : [
+                                        {type : 'max', name: '最大值'},
+                                        {type : 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine : {
+                                    data : [
+                                        {type : 'average', name: '平均值'}
+                                    ]
+                                }
+                            }
+                        ]
+                    };
+                    ;
+                    if (option && typeof option === "object") {
+                        myChart1.setOption(option, true);
+                    }
+                  }
+             });
+
+
+
+
+
+    </script>
+    <script type="text/javascript">
+        var dom2 = document.getElementById("container2");
+        var myChart2 = echarts.init(dom2);
+        var app = {};
+        var dataObj2 = {};
+        var xArrayEducationObj = [];
+        var yArrayEducationObj = [];
+        option2 = null;
+        function expectedSalary() {
+
+            $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/education/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj2=eval("("+data+")");
+                     for (var key in dataObj2) {
+                        xArrayEducationObj.push(key);
+                        yArrayEducationObj.push(dataObj2[key]);
+                     }
+                     var temp1 = yArrayEducationObj[0];
+                     option2 = {
+                     title: {
+                         text: '退役军人学历教育情况',
+                         subtext: '数据来自兵果果招聘',
+                     },
+                     tooltip : {
+                         trigger: 'axis',
+                         axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                             type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                         },
+                         <!--formatter: function (params) {-->
+                             <!--var tar = params[1];-->
+                             <!--return tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;-->
+                         <!--}-->
+                     },
+                     grid: {
+                         left: '3%',
+                         right: '4%',
+                         bottom: '3%',
+                         containLabel: true
+                     },
+                     xAxis: {
+                         type : 'category',
+                         splitLine: {show:false},
+                         data : xArrayEducationObj
+                     },
+                     yAxis: {
+                         type : 'value'
+                     },
+                     series: [
+                         {
+                             name: '辅助',
+                             type: 'bar',
+                             stack:  '总量',
+                             itemStyle: {
+                                 normal: {
+                                     barBorderColor: 'rgba(0,0,0,0)',
+                                     color: 'rgba(0,0,0,0)'
+                                 },
+                                 emphasis: {
+                                     barBorderColor: 'rgba(0,0,0,0)',
+                                     color: 'rgba(0,0,0,0)'
+                                 }
+                             },
+                             data: [0, yArrayEducationObj[0], Number(yArrayEducationObj[1]) + Number(yArrayEducationObj[0]),Number(yArrayEducationObj[1]) + Number(yArrayEducationObj[0]) +  Number(yArrayEducationObj[2]), 0]
+                         },
+                         {
+                             name: '学历教育情况',
+                             type: 'bar',
+                             stack: '总量',
+                             label: {
+                                 normal: {
+                                     show: true,
+                                     position: 'inside'
+                                 }
+                             },
+                             data:yArrayEducationObj
+                         }
+                     ]
+                 };
+                 if (option2 && typeof option2 === "object") {
+                     myChart2.setOption(option2, true);
+                 }
+                }
+            })
+
+        }
+        expectedSalary()
+    </script>
+    <script type="text/javascript">
+    stateStatisticsDay()
+    function stateStatisticsDay() {
+        var dom = document.getElementById("container3");
+        var myChart3 = echarts.init(dom);
+        var app = {};
+        var dataObj = {};
+        var xArrayStateObj = [];
+        var yArrayStateObj1 = [];
+        var yArrayStateObj2 = [];
+        var yArrayStateObj3 = [];
+        var yArrayStateObj4 = [];
+        option = null;
+
+        $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/veteran/time/statistics",
+                  data:  JSON.stringify({"category" : "day"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayStateObj.push(key);
+                        yArrayStateObj1.push(dataObj[key][0]);
+                        yArrayStateObj2.push(dataObj[key][1]);
+                        yArrayStateObj3.push(dataObj[key][2]);
+                        yArrayStateObj4.push(dataObj[key][3]);
+                     }
+                     var posList = [
+                        'left', 'right', 'top', 'bottom',
+                        'inside',
+                        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                    ];
+
+                    app.configParameters = {
+                        rotate: {
+                            min: -90,
+                            max: 90
+                        },
+                        align: {
+                            options: {
+                                left: 'left',
+                                center: 'center',
+                                right: 'right'
+                            }
+                        },
+                        verticalAlign: {
+                            options: {
+                                top: 'top',
+                                middle: 'middle',
+                                bottom: 'bottom'
+                            }
+                        },
+                        position: {
+                            options: echarts.util.reduce(posList, function (map, pos) {
+                                map[pos] = pos;
+                                return map;
+                            }, {})
+                        },
+                        distance: {
+                            min: 0,
+                            max: 100
+                        }
+                    };
+
+                    app.config = {
+                        rotate: 90,
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        position: 'insideBottom',
+                        distance: 15,
+                        onChange: function () {
+                            var labelOption = {
+                                normal: {
+                                    rotate: app.config.rotate,
+                                    align: app.config.align,
+                                    verticalAlign: app.config.verticalAlign,
+                                    position: app.config.position,
+                                    distance: app.config.distance
+                                }
+                            };
+                            myChart.setOption({
+                                series: [{
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }]
+                            });
+                        }
+                    };
+
+
+                    var labelOption = {
+                        normal: {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        }
+                    };
+
+                    option = {
+                        color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['退伍总数', '今年退伍', '去年退伍', '退伍两年以上']
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {show: false},
+                                data: xArrayStateObj
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '退伍总数',
+                                type: 'bar',
+                                barGap: 0,
+                                label: labelOption,
+                                data: yArrayStateObj1
+                            },
+                            {
+                                name: '今年退伍',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj2
+                            },
+                            {
+                                name: '去年退伍',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj3
+                            },
+                            {
+                                name: '退伍两年以上',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj4
+                            }
+                        ]
+                    };;
+                    if (option && typeof option === "object") {
+                        myChart3.setOption(option, true);
+                    }
+                  }
+             });
+     }
+
+    </script>
+    <script type="text/javascript">
+    function stateStatisticsMonth() {
+        var dom = document.getElementById("container3");
+        var myChart3 = echarts.init(dom);
+        var app = {};
+        var dataObj = {};
+        var xArrayStateObj = [];
+        var yArrayStateObj1 = [];
+        var yArrayStateObj2 = [];
+        var yArrayStateObj3 = [];
+        var yArrayStateObj4 = [];
+        option = null;
+
+        $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/veteran/time/statistics",
+                  data:  JSON.stringify({"category" : "month"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayStateObj.push(key);
+                        yArrayStateObj1.push(dataObj[key][0]);
+                        yArrayStateObj2.push(dataObj[key][1]);
+                        yArrayStateObj3.push(dataObj[key][2]);
+                        yArrayStateObj4.push(dataObj[key][3]);
+                     }
+                     var posList = [
+                        'left', 'right', 'top', 'bottom',
+                        'inside',
+                        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                    ];
+
+                    app.configParameters = {
+                        rotate: {
+                            min: -90,
+                            max: 90
+                        },
+                        align: {
+                            options: {
+                                left: 'left',
+                                center: 'center',
+                                right: 'right'
+                            }
+                        },
+                        verticalAlign: {
+                            options: {
+                                top: 'top',
+                                middle: 'middle',
+                                bottom: 'bottom'
+                            }
+                        },
+                        position: {
+                            options: echarts.util.reduce(posList, function (map, pos) {
+                                map[pos] = pos;
+                                return map;
+                            }, {})
+                        },
+                        distance: {
+                            min: 0,
+                            max: 100
+                        }
+                    };
+
+                    app.config = {
+                        rotate: 90,
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        position: 'insideBottom',
+                        distance: 15,
+                        onChange: function () {
+                            var labelOption = {
+                                normal: {
+                                    rotate: app.config.rotate,
+                                    align: app.config.align,
+                                    verticalAlign: app.config.verticalAlign,
+                                    position: app.config.position,
+                                    distance: app.config.distance
+                                }
+                            };
+                            myChart.setOption({
+                                series: [{
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }]
+                            });
+                        }
+                    };
+
+
+                    var labelOption = {
+                        normal: {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        }
+                    };
+
+                    option = {
+                        color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['退伍总数', '今年退伍', '去年退伍', '退伍两年以上']
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {show: false},
+                                data: xArrayStateObj
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '退伍总数',
+                                type: 'bar',
+                                barGap: 0,
+                                label: labelOption,
+                                data: yArrayStateObj1
+                            },
+                            {
+                                name: '今年退伍',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj2
+                            },
+                            {
+                                name: '去年退伍',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj3
+                            },
+                            {
+                                name: '退伍两年以上',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj4
+                            }
+                        ]
+                    };;
+                    if (option && typeof option === "object") {
+                        myChart3.setOption(option, true);
+                    }
+                  }
+             });
+     }
+
+    </script>
+    <script type="text/javascript">
+    function stateStatisticsYear() {
+        var dom = document.getElementById("container3");
+        var myChart3 = echarts.init(dom);
+        var app = {};
+        var dataObj = {};
+        var xArrayStateObj = [];
+        var yArrayStateObj1 = [];
+        var yArrayStateObj2 = [];
+        var yArrayStateObj3 = [];
+        var yArrayStateObj4 = [];
+        option = null;
+
+        $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/veteran/time/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj=eval("("+data+")");
+                     for (var key in dataObj) {
+                        xArrayStateObj.push(key);
+                        yArrayStateObj1.push(dataObj[key][0]);
+                        yArrayStateObj2.push(dataObj[key][1]);
+                        yArrayStateObj3.push(dataObj[key][2]);
+                        yArrayStateObj4.push(dataObj[key][3]);
+                     }
+                     var posList = [
+                        'left', 'right', 'top', 'bottom',
+                        'inside',
+                        'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                        'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                    ];
+
+                    app.configParameters = {
+                        rotate: {
+                            min: -90,
+                            max: 90
+                        },
+                        align: {
+                            options: {
+                                left: 'left',
+                                center: 'center',
+                                right: 'right'
+                            }
+                        },
+                        verticalAlign: {
+                            options: {
+                                top: 'top',
+                                middle: 'middle',
+                                bottom: 'bottom'
+                            }
+                        },
+                        position: {
+                            options: echarts.util.reduce(posList, function (map, pos) {
+                                map[pos] = pos;
+                                return map;
+                            }, {})
+                        },
+                        distance: {
+                            min: 0,
+                            max: 100
+                        }
+                    };
+
+                    app.config = {
+                        rotate: 90,
+                        align: 'left',
+                        verticalAlign: 'middle',
+                        position: 'insideBottom',
+                        distance: 15,
+                        onChange: function () {
+                            var labelOption = {
+                                normal: {
+                                    rotate: app.config.rotate,
+                                    align: app.config.align,
+                                    verticalAlign: app.config.verticalAlign,
+                                    position: app.config.position,
+                                    distance: app.config.distance
+                                }
+                            };
+                            myChart.setOption({
+                                series: [{
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }, {
+                                    label: labelOption
+                                }]
+                            });
+                        }
+                    };
+
+
+                    var labelOption = {
+                        normal: {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        }
+                    };
+
+                    option = {
+                        color: ['#003366', '#006699', '#4cabce', '#e5323e'],
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['退伍总数', '今年退伍', '去年退伍', '退伍两年以上']
+                        },
+                        toolbox: {
+                            show: true,
+                            orient: 'vertical',
+                            left: 'right',
+                            top: 'center',
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                axisTick: {show: false},
+                                data: xArrayStateObj
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '退伍总数',
+                                type: 'bar',
+                                barGap: 0,
+                                label: labelOption,
+                                data: yArrayStateObj1
+                            },
+                            {
+                                name: '今年退伍',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj2
+                            },
+                            {
+                                name: '去年退伍',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj3
+                            },
+                            {
+                                name: '退伍两年以上',
+                                type: 'bar',
+                                label: labelOption,
+                                data: yArrayStateObj4
+                            }
+                        ]
+                    };;
+                    if (option && typeof option === "object") {
+                        myChart3.setOption(option, true);
+                    }
+                  }
+             });
+     }
+
+    </script>
+    <script type="text/javascript">
+        var dom4 = document.getElementById("container4");
+        var myChart4 = echarts.init(dom4);
+        var app = {};
+        var dataObj4 = {};
+        var xArraySalaryObj = [];
+        var yArraySalaryObj = [];
+        option4 = null;
+        function expectedPosition() {
+
+            $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/excepted/salary/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj4=eval("("+data+")");
+                     for (var key in dataObj4) {
+                        xArraySalaryObj.push(key);
+                        var obj = new Object();
+                        obj.name = key;
+                        obj.value = dataObj4[key];
+                        yArraySalaryObj.push(obj);
+                     }
+                     option4 = {
+                        title: {
+                            text: '退役军人期望月薪组成',
+                            subtext: '数据来自兵果果招聘',
+                            x: 'right'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b}: {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            x: 'left',
+                            data:xArraySalaryObj
+                        },
+                        series: [
+                            {
+                                name:'期望月薪',
+                                type:'pie',
+                                selectedMode: 'single',
+                                radius: [0, '30%'],
+
+                                label: {
+                                    normal: {
+                                        position: 'inner'
+                                    }
+                                },
+                                labelLine: {
+                                    normal: {
+                                        show: false
+                                    }
+                                },
+                                data:[
+
+                                ]
+                            },
+                            {
+                                name:'期望月薪',
+                                type:'pie',
+                                radius: ['40%', '55%'],
+                                label: {
+                                    normal: {
+                                        formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
+                                        backgroundColor: '#eee',
+                                        borderColor: '#aaa',
+                                        borderWidth: 1,
+                                        borderRadius: 4,
+                                        shadowBlur:3,
+                                        shadowOffsetX: 2,
+                                        shadowOffsetY: 2,
+                                        shadowColor: '#999',
+                                        padding: [0, 7],
+                                        rich: {
+                                            a: {
+                                                color: '#999',
+                                                lineHeight: 22,
+                                                align: 'center'
+                                            },
+                                            // abg: {
+                                            //     backgroundColor: '#333',
+                                            //     width: '100%',
+                                            //     align: 'right',
+                                            //     height: 22,
+                                            //     borderRadius: [4, 4, 0, 0]
+                                            // },
+                                            hr: {
+                                                borderColor: '#aaa',
+                                                width: '100%',
+                                                borderWidth: 0.5,
+                                                height: 0
+                                            },
+                                            b: {
+                                                fontSize: 16,
+                                                lineHeight: 33
+                                            },
+                                            per: {
+                                                color: '#eee',
+                                                backgroundColor: '#334455',
+                                                padding: [2, 4],
+                                                borderRadius: 2
+                                            }
+                                        }
+                                    }
+                                },
+                                data:yArraySalaryObj
+                            }
+                        ]
+                     };
+                 if (option4 && typeof option4 === "object") {
+                     myChart4.setOption(option4, true);
+                 }
+                }
+            })
+
+        }
+        expectedPosition()
+    </script>
+    <script type="text/javascript">
+            var dom5 = document.getElementById("container5");
+            var myChart5 = echarts.init(dom5);
+            var app5 = {};
+            var dataObj5 = {};
+            var xArrayPositionObj = [];
+            var yArrayPositionObj = [];
+            option = null;
+
+            function exceptedPosition() {
+                $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/excepted/position/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj5=eval("("+data+")");
+                     for (var key in dataObj5) {
+                        xArrayPositionObj.push(key);
+                        var obj = new Object();
+                        obj.name = key;
+                        obj.value = dataObj5[key];
+                        yArrayPositionObj.push(obj);
+                     }
+                     option5 = {
+                        backgroundColor: '#ffffff',
+                        title : {
+                            text: '期望职位分类',
+                            subtext: '数据来自兵果果招聘',
+                            x:'left'
+                        },
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'right',
+                            data: xArrayPositionObj
+                        },
+                        series : [
+                            {
+                                name: '期望职位',
+                                type: 'pie',
+                                radius : '55%',
+                                center: ['50%', '60%'],
+                                data: yArrayPositionObj,
+                                itemStyle: {
+                                    emphasis: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    if (option5 && typeof option5 === "object") {
+                        myChart5.setOption(option5, true);
+                    }
+                  }
+             });
+
+            }
+            exceptedPosition()
+    </script>
+    <script type="text/javascript">
+            var dom6 = document.getElementById("container6");
+            var myChart6 = echarts.init(dom6);
+            var app6 = {};
+            var dataObj6 = {};
+            var xArrayOldObj = [];
+            var yArrayOldObj = [];
+            option6 = null;
+
+            function old() {
+                $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/old/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj6=eval("("+data+")");
+                     for (var key in dataObj6) {
+                        xArrayOldObj.push(key);
+                        var obj = new Object();
+                        obj.name = key;
+                        obj.value = dataObj6[key];
+                        yArrayOldObj.push(obj);
+                     }
+                     option6 = {
+                        title : {
+                            text: '各年龄层次统计',
+                            subtext: '数据来自兵果果招聘',
+                            x:'center'
+                        },
+                        tooltip : {
+                            trigger: 'item',
+                            formatter: "{a} <br/>{b} : {c} ({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                            data: xArrayOldObj
+                        },
+                        series : [
+                            {
+                                name: '年龄统计',
+                                type: 'pie',
+                                radius : '55%',
+                                center: ['50%', '60%'],
+                                data:yArrayOldObj,
+                                itemStyle: {
+                                    emphasis: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+
+                    if (option6 && typeof option6 === "object") {
+                        myChart6.setOption(option6, true);
+                    }
+                  }
+             });
+
+            }
+            old()
+    </script>
+</div>
+<script src="assets/js/lib/jquery-2.1.3.min.js"></script>
+<script src="assets/js/jquery.mousewheel.min.js"></script>
+<script src="assets/js/jquery.cookie.min.js"></script>
+<script src="assets/js/fastclick.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/clearmin.min.js"></script>
+<script src="assets/js/demo/home.js"></script>
+
+</body>
+</html>

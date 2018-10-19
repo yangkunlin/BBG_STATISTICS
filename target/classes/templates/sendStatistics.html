@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap-clearmin.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/roboto.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/material-design.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/small-n-flat.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.min.css">
+
+    <!--table依赖-->
+    <link rel="stylesheet" type="text/css" href="bootstrap-table/bootstrap-table.css">
+    <link rel="stylesheet" href="bootstrap-table/bootstrap-editable.css">
+    <!--datetime依赖-->
+    <link rel="stylesheet" type="text/css" href="bootstrap-datetimepicker/bootstrap-datetimepicker.css">
+
+    <!--echarts依赖-->
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+    <script type="text/javascript"
+            src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+    <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <title>Clearmin template</title>
+</head>
+<body class="cm-no-transition cm-1-navbar">
+<div id="cm-menu">
+    <nav class="cm-navbar cm-navbar-primary">
+        <div class="cm-flex">
+            <div class="cm-logo"></div>
+        </div>
+        <div class="btn btn-primary md-menu-white" data-toggle="cm-menu"></div>
+    </nav>
+    <div id="cm-menu-content">
+        <div id="cm-menu-items-wrapper">
+            <div id="cm-menu-scroller">
+                <ul class="cm-menu-items">
+                    <li class="active"><a href="/firmStatistics" class="sf-house">企业信息统计</a></li>
+                    <li><a href="/userInfoStatistics" class="sf-dashboard">用户信息统计</a></li>
+                    <li><a href="/resumeStatistics" class="sf-notepad">简历信息统计</a></li>
+                    <li><a href="/sendStatistics" class="sf-cat">简历投递统计</a></li>
+                    <li><a href="/positionStatistics" class="sf-lock-open">职位信息统计</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<header id="cm-header">
+    <nav class="cm-navbar cm-navbar-primary">
+        <div class="btn btn-primary md-menu-white hidden-md hidden-lg" data-toggle="cm-menu"></div>
+        <div class="cm-flex">
+            <h1>兵果果业务系统</h1>
+            <form id="cm-search" action="http://www.baidu.com/baidu" method="get" target="_blank">
+                <input name=tn type=hidden value=baidu>
+                <input type="search" name="word" autocomplete="off" placeholder="搜索">
+            </form>
+        </div>
+        <div class="pull-right">
+            <div id="cm-search-btn" class="btn btn-primary md-search-white" data-toggle="cm-search"></div>
+        </div>
+        <div class="dropdown pull-right">
+            <button class="btn btn-primary md-account-circle-white" data-toggle="dropdown"></button>
+            <ul class="dropdown-menu">
+                <li class="disabled text-center">
+                    <a style="cursor:default;" id="a-realname"><strong>yangkunlin</strong></a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a href="#" id="/user/changepassword"><i class="fa fa-fw fa-cog"></i>修改密码</a>
+                </li>
+                <li>
+                    <a href="/user/logout" id="logout"><i class="fa fa-fw fa-sign-out"></i>退出登陆</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <title>兵果果数据统计</title>
+</header>
+<div id="global">
+    <ul>
+        <li>
+            <div id="container1" style="height:450px; width:25%; float:left; display:inline; margin:25px"></div>
+            <div id="container2" style="height:450px; width:67%; float:left; display:inline; margin-bottom:5px">
+                <div class="panel panel-default" style="margin-top:25px">
+                    <div class="panel-heading">查询条件</div>
+                    <div class="panel-body">
+                        <form id="formSearch" class="form-horizontal">
+                            <div class="form-group" style="margin-top:15px">
+                                <label class="control-label col-sm-2" for="search_target">请选择要查询的列</label>
+                                <div class="col-sm-3">
+                                    <select class="form-control" id="search_target" name="type">
+                                        <option value="userName">求职者姓名</option>
+                                        <!--<option value="address">求职地点</option>-->
+                                        <option value="firmName">投递公司</option>
+                                        <!--<option value="positionName">投递岗位</option>-->
+                                        <!--<option value="firmPhone">公司电话</option>-->
+                                        <!--<option value="userPhone">求职者电话</option>-->
+                                        <!--<option value="createTime">投递时间</option>-->
+                                        <!--<option value="state">简历状态</option>-->
+                                    </select>
+                                </div>
+                                <label class="control-label col-sm-2" for="search_content">请输入要查询的内容</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" id="search_content" placeholder="可进行模糊查询">
+                                </div>
+                                <div class="col-sm-1" style="text-align:left;">
+                                    <button type="button" style="margin-left:25px" id="searchSubmit"
+                                            class="btn btn-primary">查询
+                                    </button>
+                                </div>
+                                <div class="col-sm-1" style="text-align:left;">
+                                    <button type="button" style="margin-left:25px" id="reset" class="btn btn-primary">
+                                        重置
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div style="margin-top:5px">
+                    <table id="firmResumeTable"></table>
+                </div>
+            </div>
+        </li>
+        <li>
+        </li>
+    </ul>
+    <script type="text/javascript">
+            var dom1 = document.getElementById("container1");
+            var myChart1 = echarts.init(dom1);
+            var app1 = {};
+            var dataObj1 = {};
+            var xArraySendObj = [];
+            var yArraySendObj = [];
+            option1 = null;
+
+            function resumeSend() {
+                $.ajax({
+                  type: "POST",
+                  async : true,
+                  url: "/resume/send/statistics",
+                  data:  JSON.stringify({"category" : "year"}),
+                  contentType:"json/application",
+                  datatype:"json",
+                  success: function (data) {
+                     dataObj1=eval("("+data+")");
+                     var temp1 = [];
+                     var temp2 = [];
+                     var temp3 = [];
+                     for (var key in dataObj1) {
+                        yArraySendObj.push(key);
+                        var temp = dataObj1[key];
+
+                        temp1.push(temp[0]);
+                        temp2.push(temp[1]);
+                        temp3.push(temp[2]);
+
+                        var name1 = '待处理';
+                        var name2 = '接收';
+                        var name3 = '拒绝';
+
+                     }
+                     xArraySendObj.push({"name":name1,"data": temp1,"type":'bar', "stack":'总量',"normal.position" : 'insideRight',"normal.show":true});
+                     xArraySendObj.push({"name":name2,"data": temp2,"type":'bar', "stack":'总量',"normal.position" : 'insideRight',"normal.show":true});
+                     xArraySendObj.push({"name":name3,"data": temp3,"type":'bar', "stack":'总量',"normal.position" : 'insideRight',"normal.show":true})
+                    option1 = {
+                        tooltip : {
+                            trigger: 'axis',
+                            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                            }
+                        },
+                        legend: {
+                            data: ['待处理', '接收','拒绝']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis:  {
+                            type: 'value'
+                        },
+                        yAxis: {
+                            type: 'category',
+                            data: yArraySendObj
+                        },
+                        series:xArraySendObj
+
+                    };
+                    if (option1 && typeof option1 === "object") {
+                        myChart1.setOption(option1, true);
+                    }
+                  }
+             });
+
+            }
+            resumeSend()
+    </script>
+    <script type="text/javascript">
+    $(function () {
+        //1.初始化Table
+        var oTable = new TableInit();
+        oTable.Init();
+
+        //2.初始化Button的点击事件
+        var oButtonInit = new ButtonInit();
+        oButtonInit.Init();
+    })
+
+    var TableInit = function () {
+        var oTableInit = new Object();
+        //初始化Table
+        oTableInit.Init = function () {
+            $('#firmResumeTable').bootstrapTable({
+                url: '/resume/send/information',            //请求后台的URL（*）
+                method: 'post',            //请求方式（*）
+                contentType: "application/x-www-form-urlencoded",//当请求方法为post的时候,必须要有！！！！
+                toolbar: '',        //工具按钮用哪个容器
+                striped: true,                      //是否显示行间隔色
+                cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                pagination: true,                   //是否显示分页（*）
+                sortable: true,                     //是否启用排序
+                sortOrder: "asc",                   //排序方式
+                queryParams: oTableInit.queryParams,//传递参数（*）
+                sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                pageNumber: 1,                       //初始化加载第一页，默认第一页
+                pageSize: 15,                       //每页的记录行数（*）
+                pageList: [5, 25, 50, 100],        //可供选择的每页的行数（*）
+                search: false,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                strictSearch: true,
+                showColumns: true,                  //是否显示所有的列
+                showRefresh: true,                  //是否显示刷新按钮
+                minimumCountColumns: 2,             //最少允许的列数
+                clickToSelect: true,                //是否启用点击选中行
+                height: 740,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                showToggle: true,                    //是否显示详细视图和列表视图的切换按钮
+                cardView: false,                    //是否显示详细视图
+                detailView: false,                  //是否显示父子表
+                showExport: true,                     //是否显示导出
+                exportDataType: "selected",              //basic', 'all', 'selected'
+                exportTypes:[ 'csv', 'txt', 'sql', 'doc', 'excel', 'xlsx'],  //导出文件类型
+                columns: [{
+                    checkbox: true,//是否显示复选框
+                    visible: true,
+                }, {
+                    field: 'openId',
+                    title: 'openId',
+                    visible: false
+                }, {
+                    field: 'resumeId',
+                    title: 'openId',
+                    visible: false
+                }, {
+                    field: 'firmId',
+                    title: 'openId',
+                    visible: false
+                }, {
+                    field: 'positionId',
+                    title: 'openId',
+                    visible: false
+                }, {
+                    field: 'userName',
+                    title: '求职者姓名',
+                    sortable:true,
+                }, {
+                    field: 'address',
+                    sortable:true,
+                    title: '求职地点'
+                }, {
+                    field: 'firmName',
+                    sortable:true,
+                    title: '投递公司'
+                }, {
+                    field: 'positionName',
+                    sortable:true,
+                    title: '投递岗位'
+                },  {
+                    field: 'firmPhone',
+                    sortable:true,
+                    title: '公司电话'
+                }, {
+                    field: 'userPhone',
+                    sortable:true,
+                    title: '求职者电话'
+                }, {
+                    field: 'createTime',
+                    sortable:true,
+                    title: '投递时间'
+                },{
+                    field: 'state',
+                    sortable:true,
+                    title: '简历状态'
+                } ],
+            });
+        };
+        oTableInit.queryParams = function (params) {
+            var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                limit : params.limit, // 每页显示数量
+                offset : params.offset, // SQL语句起始索引
+                page: (params.offset / params.limit) + 1,   //当前页码
+                sort: params.sort,      //排序列名
+                sortOrder: params.order, //排位命令（desc，asc）
+                searchTarget : $('#search_target').val(),
+                searchContent : $('#search_content').val()
+            };
+            return temp;
+        };
+        return oTableInit;
+    };
+
+    var ButtonInit = function () {
+        var oInit = new Object();
+        var postdata = {};
+
+        oInit.Init = function () {
+            //初始化页面上面的按钮事件
+        };
+
+        return oInit;
+    };
+
+    $(function () {
+            $('#searchSubmit').click(function () {
+                $('#firmResumeTable').bootstrapTable('refresh', { url: '/resume/send/information' });
+            });
+            $('#reset').click(function() {
+                $('#search_target').val('');
+                $('#search_content').val('');
+                $('#firmResumeTable').bootstrapTable('refresh', { url: '/resume/send/information' });
+            });
+        });
+    </script>
+</div>
+<!--clearmin-->
+<script src="assets/js/lib/jquery-2.1.3.min.js"></script>
+<script src="assets/js/jquery.mousewheel.min.js"></script>
+<script src="assets/js/jquery.cookie.min.js"></script>
+<script src="assets/js/fastclick.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/clearmin.min.js"></script>
+<!--bootstrap table-->
+<script src="bootstrap-table/bootstrap-table.js"></script>
+<script src="bootstrap-table/bootstrap-table-zh-CN.js"></script>
+<script src="bootstrap-table/bootstrap-editable.js"></script>
+<script src="bootstrap-table/bootstrap-table-editable.js"></script>
+<script src="bootstrap-table/export/bootstrap-table-export.js"></script>
+<script src="bootstrap-table/export/tableExport.js"></script>
+<script src="bootstrap-table/export/pdfmake.min.js"></script>
+<script src="bootstrap-table/export/FileSaver.min.js"></script>
+<script src="bootstrap-table/export/jspdf.min.js"></script>
+<script src="bootstrap-table/export/jspdf.plugin.autotable.js"></script>
+<script src="bootstrap-table/export/vfs_fonts.js"></script>
+<!--bootstrap datetimepicker-->
+<script src="bootstrap-datetimepicker/bootstrap-datetimepicker.js"></script>
+<script src="bootstrap-datetimepicker/bootstrap-datetimepicker.zh-CN.js"></script>
+
+</body>
+</html>
